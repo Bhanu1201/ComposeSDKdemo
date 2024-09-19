@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "master -d dist"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@amcharts/amcharts3-react": "^3.1.1",
@@ -76,13 +76,14 @@
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.168.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-vue": "^5.1.4",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "gh-pages": "^6.1.1",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
-    "typescript": "^5.5.4",
+    "typescript": "^5.6.2",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"
   }
