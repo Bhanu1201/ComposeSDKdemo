@@ -31,9 +31,12 @@ interface ProcessedFlightData {
     [key: string]: FlightData;
 }
 
+type PerformanceType = 'Male' | 'Female'; // Define the valid performance types
+
+
 const WorldSalesByGender = () => {
     const [mapData, setMapData] = useState<any[]>([]);
-    
+
 
     const { data } = useExecuteQuery({
         dataSource: AV.DataSource,
@@ -47,7 +50,7 @@ const WorldSalesByGender = () => {
         if (!data?.rows) return {};
         return data.rows.reduce((acc: ProcessedFlightData, row: any) => {
             const state = row[0].data;
-            const performance = row[1].data;
+            const performance = row[1].data as PerformanceType;  // Assert the type
             const totalFlights = row[2].data;
 
             if (!acc[state]) {
@@ -58,11 +61,17 @@ const WorldSalesByGender = () => {
             }
 
             acc[state].totalFlights += totalFlights;
-            acc[state].statusCounts[performance] = (acc[state].statusCounts[performance] || 0) + totalFlights;
+
+            // Safely update the statusCounts using the asserted type
+            if (performance in acc[state].statusCounts) {
+                acc[state].statusCounts[performance] += totalFlights;
+            }
 
             return acc;
         }, {} as ProcessedFlightData);
     }, [data]);
+
+
 
     useEffect(() => {
         const initChart = async () => {
@@ -114,7 +123,7 @@ const WorldSalesByGender = () => {
                 },
                 series: [
                     {
-                        type:'map',
+                        type: 'map',
                         mapData: mapData,
                         data: mapDataFormatted,
                         name: 'States',
@@ -131,7 +140,7 @@ const WorldSalesByGender = () => {
                                     Female: ${stateData.statusCounts.Female}`;
                             },
                         },
-                    },
+                    } as Highcharts.SeriesMapOptions,
                     {
                         name: 'Connectors',
                         type: 'mapline',
@@ -161,11 +170,14 @@ const WorldSalesByGender = () => {
                             onPoint: {
                                 id: state.name,
                                 z: (() => {
-                                    const zoomFactor = mapChart.mapView.zoom / mapChart.mapView.minZoom;
-                                    return Math.max(
-                                        mapChart.chartWidth / 25 * zoomFactor,
-                                        mapChart.chartWidth / 9 * zoomFactor * flightState.totalFlights / Math.max(...Object.values(processedFlightData).map(d => d.totalFlights))
-                                    );
+                                    if (mapChart.mapView) { // Check if mapView is defined
+                                        const zoomFactor = mapChart.mapView.zoom / mapChart.mapView.zoom;
+                                        return Math.max(
+                                            mapChart.chartWidth / 25 * zoomFactor,
+                                            mapChart.chartWidth / 9 * zoomFactor * flightState.totalFlights / Math.max(...Object.values(processedFlightData).map(d => d.totalFlights))
+                                        );
+                                    }
+                                    return 0; // Default value if mapView is not defined
                                 })(),
                             },
                             tooltip: {

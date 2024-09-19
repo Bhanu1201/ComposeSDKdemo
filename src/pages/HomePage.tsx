@@ -425,7 +425,7 @@ const HomePage = () => {
                                 <WorldSalesByGender />
                             </div>
 
-                            <div className='col-6 col-md-6 col-sm-12 col-12 p-2 overflow-y-scroll mt-2' style={{ height: '400px' }}>
+                            <div className='col-lg-6 col-md-6 col-sm-12 col-12 p-2 overflow-y-scroll mt-2' style={{ height: '400px' }}>
                                 <CountryList />
                             </div>
 

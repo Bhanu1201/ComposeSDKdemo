@@ -5,7 +5,7 @@ import HighchartsReact from 'highcharts-react-official';
 import styles from '../../Style/DonutChart.module.css';
 import { useExecuteQuery } from '@sisense/sdk-ui';
 import * as SM from '../../sample-ecommerce';
-import { filterFactory, measureFactory } from '@sisense/sdk-data';
+import { measureFactory } from '@sisense/sdk-data';
 
 // Initialize the 3D module
 Highcharts3D(Highcharts);
@@ -26,7 +26,7 @@ const DonutChart: React.FC = () => {
 
     const options: Highcharts.Options = {
         chart: {
-            type: 'pie',
+            type: 'pie', // Type is set here
             options3d: {
                 enabled: true,
                 alpha: 45
@@ -43,19 +43,24 @@ const DonutChart: React.FC = () => {
         plotOptions: {
             pie: {
                 innerSize: 100,
-                depth: 45
+                depth: 45,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}: {point.y:.1f}%'
+                }
             }
         },
         series: [{
+            type: 'pie', // Specify type for the series
             name: 'Revenue',
             data: chartData
         }]
     };
 
     return (
-        <div className='' >
+        <div className="">
             <figure className={styles.highchartsFigure}>
-                <div className='rounded-4 w-100' >
+                <div className="rounded-4 w-100">
                     <HighchartsReact
                         highcharts={Highcharts}
                         options={options}

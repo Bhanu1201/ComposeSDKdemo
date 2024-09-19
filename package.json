@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://{Bhanu1201}.github.io/{ComposeSDkdemo}",
-
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

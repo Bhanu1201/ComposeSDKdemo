@@ -26,9 +26,9 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
     const [topology, setTopology] = useState(null);
 
     // Ensure location values are in string format and unique
-    const locationValues = useMemo(() => 
+    const locationValues = useMemo(() =>
         Array.from(new Set(selectedLocations.map(location => location.value).filter(value => typeof value === 'string')))
-    , [selectedLocations]);
+        , [selectedLocations]);
 
     // Convert selected locations to filter conditions
     const pickupLocationFilter = useMemo(() => filterFactory.members(Dm.Dim_Pickup_Locations.Pickup_Location, locationValues), [locationValues]);
@@ -69,7 +69,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
             }));
 
             // Generate flow data for all drop locations from selected pickup locations
-            const flowData = pickupLocations.flatMap(pickup => 
+            const flowData = pickupLocations.flatMap(pickup =>
                 dropLocations.map(drop => [
                     pickup.id, // 'from' location
                     drop.id    // 'to' location
@@ -96,7 +96,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
 
     useEffect(() => {
         if (topology && mapData) {
-            Highcharts.mapChart('test-map', {
+            const options: Highcharts.Options = {
                 chart: {
                     map: topology
                 },
@@ -110,7 +110,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
                 mapView: {
                     fitToGeometry: {
                         type: 'MultiPoint',
-                        coordinates:[
+                        coordinates: [
                             [85.08, 26.61], // Example coordinates for Delhi
                             [60.27, 13.08], // Example coordinates for Chennai
                             [70.84, 18.52], // Example coordinates for Mumbai
@@ -126,7 +126,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
                 plotOptions: {
                     flowmap: {
                         tooltip: {
-                            headerFormat: null,
+                            headerFormat: '',
                             pointFormat: `{point.options.from} \u2192 {point.options.to}`
                         }
                     },
@@ -139,6 +139,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
                     }
                 },
                 series: [{
+                    type: 'map',  // Specify the type for the basemap series
                     name: 'Basemap',
                     showInLegend: false,
                     states: {
@@ -150,7 +151,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
                         ['in', 1]
                     ]
                 }, {
-                    type: 'mappoint',
+                    type: 'mappoint',  // Specify the type for the pickup locations series
                     name: 'Pickup Locations',
                     color: '#add8e6',
                     dataLabels: {
@@ -158,7 +159,7 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
                     },
                     data: mapData.pickupLocations
                 }, {
-                    type: 'mappoint',
+                    type: 'mappoint',  // Specify the type for the drop locations series
                     name: 'Drop Locations',
                     color: '#ff6347',
                     dataLabels: {
@@ -166,16 +167,20 @@ const FlightRoute: React.FC<TestProps> = ({ selectedLocations, additionalFilters
                     },
                     data: mapData.dropLocations
                 }, {
-                    type: 'flowmap',
+                    type: 'flowmap',  // Specify the type for the flowmap series
                     name: 'Flowmap Series',
                     fillOpacity: 1,
                     width: 0.2,
                     color: '#550d6566',
                     data: mapData.flowData
                 }]
-            });
+            };
+
+
+            Highcharts.mapChart('test-map', options);
         }
     }, [topology, mapData]);
+
 
     return <div id="test-map" style={{ height: '600px', width: '100%', margin: '0 auto' }}></div>;
 };
