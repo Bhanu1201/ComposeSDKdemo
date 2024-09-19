@@ -29,10 +29,24 @@ import image from '../assets/image (5).png';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
 
+interface LocationOption {
+    value: string; // Change to the appropriate type based on your data
+    label: string; // Change to the appropriate type based on your data
+}
 
 
 
 const HomePage = () => {
+
+
+
+    const [uniquePickupLocations, setUniquePickupLocations] = useState<LocationOption[]>([]);
+    const [selectedLocations, setSelectedLocations] = useState<LocationOption[]>([]);
+    const [showProfile, setShowProfile] = useState(false);
+    const profileRef = useRef<HTMLDivElement | null>(null);
+
+
+
     // Fetch Pickup Locations
     const { data: pickupData } = useExecuteQuery({
         dataSource: Appdata.DataSource,
@@ -76,13 +90,6 @@ const HomePage = () => {
     const Delivered = data?.rows?.[0]?.[6]?.data || 0;
 
 
-
-
-
-    const [uniquePickupLocations, setUniquePickupLocations] = useState([]);
-    const [selectedLocations, setSelectedLocations] = useState([]);
-
-
     useEffect(() => {
         if (pickupData && pickupData.rows) {
             // Extract unique pickup locations from the data
@@ -92,20 +99,19 @@ const HomePage = () => {
     }, [pickupData]);
 
 
-    const handleLocationChange = (selectedOptions) => {
+    const handleLocationChange = (selectedOptions: any) => {
         setSelectedLocations(selectedOptions || []);
     };
 
-    const [showProfile, setShowProfile] = useState(false);
-    const profileRef = useRef(null);
+
 
     const handleProfileClick = () => {
         setShowProfile(prevState => !prevState);
     };
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (profileRef.current && !profileRef.current.contains(event.target)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
                 setShowProfile(false);
             }
         };
@@ -113,7 +119,6 @@ const HomePage = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
 
     return (
         <div style={{ display: 'flex' }}>
@@ -181,7 +186,7 @@ const HomePage = () => {
             </Box>
 
             {/* Main Content */}
-            <div style={{ marginLeft: 270, width: 'calc(100% - 270px)'}}>
+            <div style={{ marginLeft: 270, width: 'calc(100% - 270px)' }}>
                 {/* Sticky Navbar */}
                 <Navbar expand="lg" sticky="top" style={{ padding: '10px 20px', display: 'flex', justifyContent: 'space-between' }}>
                     {/* Navbar Brand (Main Dashboard) */}
@@ -259,7 +264,7 @@ const HomePage = () => {
 
                 {/* Multi-Select Dropdowns */}
                 <div>
-                    <Container fluid style={{ padding: '20px', backgroundColor:'#D1E9F6' }} className='d-flex flex-wrap rounded-4'>
+                    <Container fluid style={{ padding: '20px', backgroundColor: '#D1E9F6' }} className='d-flex flex-wrap rounded-4'>
                         <div className='mb-3 col-3 ps-2 pe-2'>
                             <Select
                                 isMulti

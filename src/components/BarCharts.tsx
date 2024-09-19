@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 
 // Function to format the y-axis labels
-const formatYAxis = (tickItem) => {
+const formatYAxis = (tickItem: any) => {
   if (tickItem >= 1000000) {
     return `${(tickItem / 1000000).toFixed(1)}m`;
   } else if (tickItem >= 1000) {

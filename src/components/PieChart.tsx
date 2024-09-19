@@ -3,8 +3,9 @@ import { useExecuteQuery } from '@sisense/sdk-ui';
 import Chart from 'react-apexcharts';
 import * as DM from '../sample-ecommerce';
 import { measureFactory } from '@sisense/sdk-data';
+import { ApexOptions } from 'apexcharts';
 
-const PieChart = () => {
+const PieChart: React.FC = () => {
   const { data, isLoading, isError } = useExecuteQuery({
     dataSource: DM.DataSource,
     dimensions: [DM.Commerce.AgeRange],
@@ -26,7 +27,7 @@ const PieChart = () => {
   const labels = data?.rows.map((row) => row[0].data) || [];
   const totalRevenueData = data?.rows.map((row) => row[2].data) || [];
 
-  const chartOptions = {
+  const chartOptions: ApexOptions = {
     chart: {
       type: 'pie',
     },
@@ -50,8 +51,7 @@ const PieChart = () => {
     ],
   };
 
-  // Use the Total Cost or Total Revenue as series for the pie chart
-  const chartSeries = totalRevenueData; // Replace with totalRevenueData if needed
+  const chartSeries = totalRevenueData; // Use Total Revenue or any relevant series
 
   return (
     <Paper elevation={3} sx={{ padding: 2, borderRadius: 4 }}>

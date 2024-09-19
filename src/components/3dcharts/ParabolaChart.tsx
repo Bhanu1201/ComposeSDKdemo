@@ -4,29 +4,46 @@ import { useExecuteQuery } from '@sisense/sdk-ui';
 import * as Dm from '../../sample-test';
 import { filterFactory } from '@sisense/sdk-data';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiYmhhbnVkdmsiLCJhIjoiY20wa3YyZGZmMTl0eTJqc2doYXNtejRjZSJ9.XqjfzMT-RJCrwmP_8DFtFw'; // Update with your Mapbox access token
+mapboxgl.accessToken = 'pk.eyJ1IjoiYmhhbnVkdmsiLCJhIjoiY20wa3YyZGZmMTl0eTJqc2doYXNtejRjZSJ9.XqjfzMT-RJCrwmP_8DFtFw';
 
 interface ParabolachartProps {
   selectedLocations: { value: string; label: string }[];
   additionalFilters?: any[]; // Optional additional filters
 }
 
+interface RouteFeature {
+  type: 'Feature';
+  geometry: {
+    type: 'LineString';
+    coordinates: [number, number][];
+  };
+  properties: {
+    from: string;
+    to: string;
+    totalFlights: number;
+  };
+}
+
+declare global {
+  interface Window {
+    Threebox: any; // Declare Threebox on the window object
+  }
+}
+
 const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additionalFilters = [] }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [routes, setRoutes] = useState<any[]>([]);
+  const [routes, setRoutes] = useState<RouteFeature[]>([]);
 
-  // Convert selected locations to filter conditions
   const locationValues = Array.from(new Set(selectedLocations.map(location => location.value).filter(value => typeof value === 'string')));
   const pickupLocationFilter = filterFactory.members(Dm.Dim_Pickup_Locations.Pickup_Location, locationValues);
-
-  // Combine location filters with additional filters
+  
   const combinedFilters = [
     pickupLocationFilter,
     ...(additionalFilters || [])
   ];
 
   const { data } = useExecuteQuery({
-    dataSource: Dm.DataSource, // Replace with your actual data source
+    dataSource: Dm.DataSource,
     dimensions: [
       Dm.Dim_Pickup_Locations.Pickup_Lat,
       Dm.Dim_Pickup_Locations.Pickup_Lon,
@@ -35,12 +52,12 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
       Dm.Dim_Pickup_Locations.Pickup_Location,
       Dm.Dim_Drop_Locations.Drop_Location
     ],
-    filters: combinedFilters // Apply filters based on selectedLocations
+    filters: combinedFilters
   });
 
   useEffect(() => {
     if (data && data.rows) {
-      const features = data.rows.map(row => {
+      const features: RouteFeature[] = data.rows.map(row => {
         const pickupLat = row[0].data;
         const pickupLon = row[1].data;
         const dropLat = row[2].data;
@@ -74,8 +91,8 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: 'mapbox://styles/mapbox/dark-v9',
-        center: [78.9629, 20.5937], // Longitude and latitude of the center of India
-        zoom: 5, // Adjust zoom level to focus on India
+        center: [78.9629, 20.5937],
+        zoom: 5,
         pitch: 45,
         antialias: true,
       });
@@ -87,7 +104,6 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
 
       map.on('style.load', () => {
         map.on('load', () => {
-          // Ensure Threebox is loaded
           if (window.Threebox) {
             const tb = new window.Threebox(map, map.getCanvas().getContext('webgl'), {
               defaultLights: true,
@@ -95,7 +111,7 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
 
             routes.forEach(route => {
               const [start, end] = route.geometry.coordinates;
-              const maxElevation = route.properties.totalFlights * 20000; // Scale height based on totalFlights
+              const maxElevation = route.properties.totalFlights * 20000;
 
               const line = [];
               const arcSegments = 20;
@@ -110,15 +126,13 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
 
               const lineOptions = {
                 geometry: line,
-                color: (route.properties.totalFlights / 150) * 0xefefe, // color based on totalFlights
-                width: Math.min(Math.log(route.properties.totalFlights) + 1, 2), // width based on totalFlights
+                color: (route.properties.totalFlights / 150) * 0xefefe,
+                width: Math.min(Math.log(route.properties.totalFlights) + 1, 2),
               };
 
               const lineMesh = tb.line(lineOptions);
               tb.add(lineMesh);
-
-              // Add interaction data to lineMesh
-              lineMesh.userData = route.properties;
+              lineMesh.userData = route.properties; // Ensure userData is correctly set
             });
 
             map.addLayer({
@@ -126,12 +140,11 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
               type: 'custom',
               renderingMode: '3d',
               onAdd: function() {},
-              render: function(gl, matrix) {
+              render: function() {
                 tb.update();
               },
             });
 
-            // Handle mouse events
             map.getCanvas().addEventListener('mousemove', (event) => {
               const rect = map.getCanvas().getBoundingClientRect();
               const x = event.clientX - rect.left;
@@ -140,7 +153,7 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
               const features = map.queryRenderedFeatures([x, y], { layers: ['custom_layer'] });
 
               if (features.length > 0) {
-                const feature = features[0];
+                const feature = features[0] as any; // Cast to 'any' to access userData
                 const properties = feature.userData;
 
                 popup.setLngLat([feature.geometry.coordinates[0], feature.geometry.coordinates[1]])
@@ -164,12 +177,14 @@ const Parabolachart: React.FC<ParabolachartProps> = ({ selectedLocations, additi
         });
       });
 
-      return () => map.remove(); // Clean up map on component unmount
+      return () => map.remove();
     }
   }, [routes]);
 
   return (
-  <div className='rounded-4' >  <div id="map" className='rounded-4' style={{ width: '100%', height: '70vh', position: 'relative' }} ref={mapContainerRef}></div></div>
+    <div className='rounded-4'>
+      <div id="map" className='rounded-4' style={{ width: '100%', height: '70vh', position: 'relative' }} ref={mapContainerRef}></div>
+    </div>
   );
 };
 

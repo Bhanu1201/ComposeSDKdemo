@@ -28,7 +28,7 @@ const IndicatorWidget = () => {
     }
 
     // Limit the number of items to 6 (or fewer if there are fewer rows)
-    const indicators = data.rows.slice(0, 6).map((row, index) => {
+    const indicators = data.rows.slice(0, 6).map((row) => {
         const revenue = Number(row[0]?.data || 0);
         const cost = Number(row[1]?.data || 0);
 

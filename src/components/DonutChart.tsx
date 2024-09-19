@@ -1,7 +1,13 @@
-import React from "react";
 import { Doughnut } from "react-chartjs-2";
 
-const DonutChart = ({ percentage, color }) => {
+
+interface SimpleDonutChartProps {
+  percentage: number; // Specify the type for percentage
+  color: string;      // Specify the type for color
+}
+
+
+const DonutChart: React.FC<SimpleDonutChartProps> = ({ percentage, color }) => {
   const data = {
     datasets: [
       {

@@ -18,9 +18,22 @@ offlineExportingModule(Highcharts);
 seriesOnPoint(Highcharts);
 accessibilityModule(Highcharts);
 
+// Define types
+interface FlightData {
+    totalFlights: number;
+    statusCounts: {
+        Male: number;
+        Female: number;
+    };
+}
+
+interface ProcessedFlightData {
+    [key: string]: FlightData;
+}
+
 const WorldSalesByGender = () => {
-    const [mapData, setMapData] = useState([]);
-    const [chart, setChart] = useState(null);
+    const [mapData, setMapData] = useState<any[]>([]);
+    
 
     const { data } = useExecuteQuery({
         dataSource: AV.DataSource,
@@ -30,9 +43,9 @@ const WorldSalesByGender = () => {
     });
 
     // Memoize processed flight data to avoid redundant calculations
-    const processedFlightData = useMemo(() => {
+    const processedFlightData = useMemo<ProcessedFlightData>(() => {
         if (!data?.rows) return {};
-        return data.rows.reduce((acc, row) => {
+        return data.rows.reduce((acc: ProcessedFlightData, row: any) => {
             const state = row[0].data;
             const performance = row[1].data;
             const totalFlights = row[2].data;
@@ -48,17 +61,17 @@ const WorldSalesByGender = () => {
             acc[state].statusCounts[performance] = (acc[state].statusCounts[performance] || 0) + totalFlights;
 
             return acc;
-        }, {});
+        }, {} as ProcessedFlightData);
     }, [data]);
 
     useEffect(() => {
         const initChart = async () => {
             // Fetch and set map data once
             if (mapData.length === 0) {
-                const mapData = await fetch(
+                const fetchedMapData = await fetch(
                     'https://code.highcharts.com/mapdata/custom/world.topo.json'
                 ).then(response => response.json());
-                setMapData(mapData);
+                setMapData(fetchedMapData);
             }
 
             // Prepare formatted data for Highcharts
@@ -70,7 +83,7 @@ const WorldSalesByGender = () => {
                 };
             });
 
-            const MapChart = Highcharts.mapChart('pie', {
+            const mapChart = Highcharts.mapChart('container', {
                 chart: {
                     animation: true,
                 },
@@ -101,7 +114,8 @@ const WorldSalesByGender = () => {
                 },
                 series: [
                     {
-                        mapData,
+                        type:'map',
+                        mapData: mapData,
                         data: mapDataFormatted,
                         name: 'States',
                         joinBy: ['name', 'id'],
@@ -111,7 +125,7 @@ const WorldSalesByGender = () => {
                             pointFormatter: function () {
                                 const stateData = processedFlightData[this.name];
                                 if (!stateData) return 'No data available';
-                                return `<b>${this.id}</b><br/>
+                                return `<b>${this.name}</b><br/>
                                     Total Flights: ${stateData.totalFlights}<br/>
                                     Male: ${stateData.statusCounts.Male}<br/>
                                     Female: ${stateData.statusCounts.Female}`;
@@ -132,15 +146,13 @@ const WorldSalesByGender = () => {
                 ],
             });
 
-            setChart(MapChart);
-
             // Add pies after chart load
-            if (MapChart) {
-                MapChart.series[0].points.forEach((state) => {
-                    const flightState = processedFlightData[state.id];
+            if (mapChart) {
+                mapChart.series[0].points.forEach((state) => {
+                    const flightState = processedFlightData[state.name];
 
                     if (flightState) {
-                        MapChart.addSeries({
+                        mapChart.addSeries({
                             type: 'pie',
                             name: state.name,
                             zIndex: 6,
@@ -149,10 +161,10 @@ const WorldSalesByGender = () => {
                             onPoint: {
                                 id: state.name,
                                 z: (() => {
-                                    const zoomFactor = MapChart.mapView.zoom / MapChart.mapView.minZoom;
+                                    const zoomFactor = mapChart.mapView?.zoom/ mapChart.mapView.minZoom;
                                     return Math.max(
-                                        MapChart.chartWidth / 25 * zoomFactor,
-                                        MapChart.chartWidth / 9 * zoomFactor * flightState.totalFlights / Math.max(...Object.values(processedFlightData).map(d => d.totalFlights))
+                                        mapChart.chartWidth / 25 * zoomFactor,
+                                        mapChart.chartWidth / 9 * zoomFactor * flightState.totalFlights / Math.max(...Object.values(processedFlightData).map(d => d.totalFlights))
                                     );
                                 })(),
                             },
@@ -168,13 +180,13 @@ const WorldSalesByGender = () => {
                             },
                             data: [
                                 { name: 'Male', y: flightState.statusCounts['Male'] || 0, color: 'rgb(0, 255, 0, 0.8)' },
-                                { name: 'Female', y: flightState.statusCounts['Female'] || 0, color: 'rgba(240,190,50,0.80)'}
+                                { name: 'Female', y: flightState.statusCounts['Female'] || 0, color: 'rgba(240,190,50,0.80)' }
                             ],
                         }, false);
                     }
                 });
 
-                MapChart.redraw();
+                mapChart.redraw();
             }
         };
 
@@ -183,7 +195,7 @@ const WorldSalesByGender = () => {
 
     return (
         <div>
-            <div id="pie" style={{ minWidth: '100%', maxWidth: '100%', height: '400px', padding: '2px', marginTop:'12px', borderRadius:'25px' }} />
+            <div id="pie" style={{ minWidth: '100%', maxWidth: '100%', height: '400px', padding: '2px', marginTop: '12px', borderRadius: '25px' }} />
         </div>
     );
 };

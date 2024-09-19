@@ -5,6 +5,7 @@ import { Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead
 import { useExecuteQuery } from '@sisense/sdk-ui';
 import * as SM from '../../sample-ecommerce';
 import { measureFactory } from '@sisense/sdk-data';
+import { errorMonitor } from 'events';
 
 interface CountryData {
     country: string;
@@ -29,7 +30,7 @@ const CountryList: React.FC = () => {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
     if (isLoading) return <div>Loading...</div>;
-    if (isError) return <div>Error: {isError.message}</div>;
+    if (isError) return <div>Error: {errorMonitor.description}</div>;
 
     // Extract unique countries and their details
     const countryDataMap: Record<string, CountryData[]> = {};

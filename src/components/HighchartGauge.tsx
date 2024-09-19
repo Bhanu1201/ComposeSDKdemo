@@ -14,14 +14,16 @@ const HighGaugeChart: React.FC = () => {
             const chart = chartRef.current?.chart;
             if (chart && !chart.renderer.forExport) {
                 const point = chart.series[0].points[0];
-                const inc = Math.round((Math.random() - 0.5) * 20);
+                if (point && point.y !== undefined) { // Check if point and point.y are defined
+                    const inc = Math.round((Math.random() - 0.5) * 20);
 
-                let newVal = point.y + inc;
-                if (newVal < 0 || newVal > 200) {
-                    newVal = point.y - inc;
+                    let newVal = point.y + inc;
+                    if (newVal < 0 || newVal > 200) {
+                        newVal = point.y - inc;
+                    }
+
+                    point.update(newVal);
                 }
-
-                point.update(newVal);
             }
         }, 3000);
 
@@ -43,7 +45,7 @@ const HighGaugeChart: React.FC = () => {
         pane: {
             startAngle: -90,
             endAngle: 89.9,
-            background: null,
+            background: [], // Set as an empty array
             center: ['50%', '75%'],
             size: '110%',
         },
@@ -55,7 +57,7 @@ const HighGaugeChart: React.FC = () => {
             tickColor: Highcharts.defaultOptions.chart?.backgroundColor || '#FFFFFF',
             tickLength: 20,
             tickWidth: 2,
-            minorTickInterval: null,
+            minorTickInterval: undefined, // Set to undefined
             labels: {
                 distance: 20,
                 style: {
@@ -83,6 +85,7 @@ const HighGaugeChart: React.FC = () => {
             }],
         },
         series: [{
+            type: 'gauge', // Specify the type
             name: 'Speed',
             data: [80],
             tooltip: {
@@ -117,7 +120,6 @@ const HighGaugeChart: React.FC = () => {
                 options={options}
                 ref={chartRef}
             />
-
         </figure>
     );
 };

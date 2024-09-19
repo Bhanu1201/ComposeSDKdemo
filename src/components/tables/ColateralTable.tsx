@@ -26,7 +26,7 @@ const ColateralTable: React.FC = () => {
     }
 
     // Extract columns and rows from the data
-    const columns = data?.columns || [];
+
     const rows = data?.rows || [];
 
     return (
@@ -40,7 +40,7 @@ const ColateralTable: React.FC = () => {
 
                 <thead>
                     <tr>
-                        <td style={{backgroundColor:'#1d4e8f'}} ><b>Index</b></td>
+                        <td style={{ backgroundColor: '#1d4e8f' }} ><b>Index</b></td>
                         {rows.map((col, index) => (
                             <th key={index}>{col[0].data}</th>
                         ))}

@@ -3,6 +3,10 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import '../../Style/SolarSystem.css'; // Ensure this file contains appropriate styles
 
+interface Asteroid extends THREE.Mesh {
+  velocity: THREE.Vector3;
+}
+
 const SolarSystem: React.FC = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
 
@@ -19,12 +23,10 @@ const SolarSystem: React.FC = () => {
 
     const controls = new OrbitControls(camera, renderer.domElement);
 
-    // Load and set the background image
     const loader = new THREE.TextureLoader();
-    const backgroundTexture = loader.load('path_to_generated_image.png'); // Replace with the actual path to the generated image
+    const backgroundTexture = loader.load('path_to_generated_image.png'); // Replace with the actual path
     scene.background = backgroundTexture;
 
-    // Adding stars in the background
     const starGeometry = new THREE.BufferGeometry();
     const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 });
     const starVertices = [];
@@ -38,13 +40,11 @@ const SolarSystem: React.FC = () => {
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 
-    // Sun
     const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
 
-    // Planets and Orbits
     const planetGeometries = [
       { size: 1, color: 0xaaaaaa, distance: 8 },
       { size: 1.2, color: 0xff5733, distance: 12 },
@@ -63,7 +63,6 @@ const SolarSystem: React.FC = () => {
       planet.position.x = distance;
       scene.add(planet);
 
-      // Create Orbit
       const orbitGeometry = new THREE.RingGeometry(distance - 0.05, distance + 0.1, 64);
       const orbitMaterial = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
       const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
@@ -73,12 +72,11 @@ const SolarSystem: React.FC = () => {
       return { planet, distance };
     });
 
-    // Shooting Stars (Modified Asteroid Belt)
     const asteroidGroup = new THREE.Group();
     for (let i = 0; i < 100; i++) {
       const asteroidGeometry = new THREE.SphereGeometry(0.2, 12, 12);
       const asteroidMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
-      const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+      const asteroid: Asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial) as Asteroid; // Type assertion
       asteroid.position.set(
         THREE.MathUtils.randFloatSpread(50),
         THREE.MathUtils.randFloatSpread(50),
@@ -95,23 +93,19 @@ const SolarSystem: React.FC = () => {
 
     const animate = () => {
       requestAnimationFrame(animate);
-
-      // Rotate the sun
       sun.rotation.y += 0.005;
 
-      // Rotate planets around the sun
       planets.forEach(({ planet, distance }, index) => {
         const angle = Date.now() * 0.001 + index;
         planet.position.x = Math.cos(angle) * distance;
         planet.position.z = Math.sin(angle) * distance;
       });
 
-      // Update shooting stars
-      asteroidGroup.children.forEach((asteroid: any) => {
-        asteroid.position.add(asteroid.velocity);
-        // Reset position if it goes out of bounds to simulate shooting effect
-        if (Math.abs(asteroid.position.x) > 50 || Math.abs(asteroid.position.y) > 50 || Math.abs(asteroid.position.z) > 50) {
-          asteroid.position.set(
+      asteroidGroup.children.forEach((asteroid) => {
+        const asteroidMesh = asteroid as Asteroid; // Cast to Asteroid
+        asteroidMesh.position.add(asteroidMesh.velocity);
+        if (Math.abs(asteroidMesh.position.x) > 50 || Math.abs(asteroidMesh.position.y) > 50 || Math.abs(asteroidMesh.position.z) > 50) {
+          asteroidMesh.position.set(
             THREE.MathUtils.randFloatSpread(50),
             THREE.MathUtils.randFloatSpread(50),
             THREE.MathUtils.randFloatSpread(50),

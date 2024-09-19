@@ -1,11 +1,15 @@
-// src/SimpleDonutChart.js
-import React from "react";
-import { PieChart, Pie, Cell } from "recharts";
+import React from 'react';
+import { PieChart, Pie, Cell } from 'recharts';
 
-const SimpleDonutChart = ({ percentage, color }) => {
+interface SimpleDonutChartProps {
+  percentage: number; // Specify the type for percentage
+  color: string;      // Specify the type for color
+}
+
+const SimpleDonutChart: React.FC<SimpleDonutChartProps> = ({ percentage, color }) => {
   const data = [
-    { name: "Used", value: percentage },
-    { name: "Remaining", value: 100 - percentage },
+    { name: 'Used', value: percentage },
+    { name: 'Remaining', value: 100 - percentage },
   ];
 
   return (

@@ -8,12 +8,10 @@ import { filterFactory, measureFactory } from '@sisense/sdk-data';
 const LineChart = () => {
     const [categories, setCategories] = useState<string[]>([]);
 
-    // Handle category change
     const handleCategoryChange = (_event: React.MouseEvent<HTMLElement>, newCategories: string[]) => {
         setCategories(newCategories);
     };
 
-    // Create filters using useMemo based on selected categories
     const chartFilters = useMemo(() =>
         categories.length > 0
             ? [filterFactory.members(DM.Commerce.AgeRange, categories)]
@@ -21,7 +19,6 @@ const LineChart = () => {
         [categories]
     );
 
-    // Execute query with filters
     const { data, isLoading, isError } = useExecuteQuery({
         dataSource: DM.DataSource,
         dimensions: [DM.Commerce.AgeRange],
@@ -40,7 +37,6 @@ const LineChart = () => {
         return <div>Error</div>;
     }
 
-    // Transform the data for ApexCharts
     const categoriesData = data?.rows.map((row) => row[0].data) || [];
     const spendingData = data?.rows.map((row) => row[1].data) || [];
     const costData = data?.rows.map((row) => row[2].data) || [];
@@ -58,13 +54,13 @@ const LineChart = () => {
         ],
         options: {
             chart: {
-                type: 'line',
+                type: 'line' as 'line', // Ensure type is explicitly 'line'
                 toolbar: {
                     show: false,
                 },
             },
             stroke: {
-                curve: 'smooth',
+                curve: 'smooth' as 'smooth', // Explicitly set curve type
             },
             xaxis: {
                 categories: categoriesData,
@@ -74,13 +70,13 @@ const LineChart = () => {
             },
             yaxis: {
                 labels: {
-                    formatter: function (value) {
+                    formatter: (value: number) => {
                         if (value >= 1000000) {
                             return (value / 1000000).toFixed(1) + 'M';
                         } else if (value >= 1000) {
                             return (value / 1000).toFixed(1) + 'K';
                         }
-                        return value;
+                        return value.toString();
                     },
                 },
                 title: {
@@ -132,7 +128,7 @@ const LineChart = () => {
                             options={chartData.options}
                             series={chartData.series}
                             type="line"
-                            height="300px" // Adjust the height as needed
+                            height="300px"
                             width="100%"
                         />
                     </Box>

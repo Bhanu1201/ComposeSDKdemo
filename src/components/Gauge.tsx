@@ -17,7 +17,7 @@ import {
   };
   
   // Helper function to format numbers based on the configuration
-  const formatValue = (value) => {
+  const formatValue = (value: any) => {
     if (value >= 1_000_000) {
       return `${(value / 1_000_000).toFixed(numberFormatConfig.decimalScale)}m`;
     } else if (value >= 1_000) {
@@ -28,7 +28,7 @@ import {
   };
   
   // Helper function to determine gauge color based on value
-  const getGaugeColor = (value) => {
+  const getGaugeColor = (value: any) => {
     if (value < 24_000_000) {
       return '#ff0000'; // Red
     } else if (value >= 24_000_000 && value < 40_000_000) {
