@@ -161,7 +161,7 @@ const WorldSalesByGender = () => {
                             onPoint: {
                                 id: state.name,
                                 z: (() => {
-                                    const zoomFactor = mapChart.mapView?.zoom/ mapChart.mapView.minZoom;
+                                    const zoomFactor = mapChart.mapView.zoom / mapChart.mapView.minZoom;
                                     return Math.max(
                                         mapChart.chartWidth / 25 * zoomFactor,
                                         mapChart.chartWidth / 9 * zoomFactor * flightState.totalFlights / Math.max(...Object.values(processedFlightData).map(d => d.totalFlights))
