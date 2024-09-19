@@ -1,0 +1,7 @@
+/* Add this in your CSS or style prop */
+#dashboardContainer {
+    width: 100%;
+    height: 600px; /* Or any height that you expect the dashboard to display properly */
+    min-height: 600px; /* Ensure it does not collapse */
+  }
+  

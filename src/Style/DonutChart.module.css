@@ -1,0 +1,46 @@
+/* DonutChart.module.css */
+#container {
+    height: 400px;
+}
+
+.highchartsFigure {
+    min-width: 310px;
+    max-width: 800px;
+    margin: auto;
+}
+
+.highchartsDataTable {
+    font-family: Verdana, sans-serif;
+    border-collapse: collapse;
+    border: 1px solid #ebebeb;
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+.highchartsDataTableCaption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.highchartsDataTableTh {
+    font-weight: 600;
+    padding: 0.5em;
+}
+
+.highchartsDataTableTd,
+.highchartsDataTableTh,
+.highchartsDataTableCaption {
+    padding: 0.5em;
+}
+
+.highchartsDataTableTheadTr,
+.highchartsDataTableTrEven {
+    background: #f8f8f8;
+}
+
+.highchartsDataTableTrHover {
+    background: #f1f7ff;
+}

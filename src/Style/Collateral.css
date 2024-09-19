@@ -1,0 +1,17 @@
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.sticky-header-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #1d4e8f;
+  z-index: 1;
+}
+
+.sticky-header-table tbody tr {
+
+  background-color: #99acc5;
+
+}
